@@ -176,3 +176,58 @@ window.addEventListener('DOMContentLoaded', () => {
     loadConfig();
     fetchDynamicServices();
 });
+
+// --- Quiz Logic ---
+let quizAnswers = {};
+
+function openQuiz() {
+    document.getElementById('quiz-overlay').classList.remove('hidden');
+    document.getElementById('quiz-q1').classList.remove('hidden');
+    document.getElementById('quiz-q2').classList.add('hidden');
+    document.getElementById('quiz-q3').classList.add('hidden');
+    quizAnswers = {};
+}
+
+function closeQuiz() {
+    document.getElementById('quiz-overlay').classList.add('hidden');
+}
+
+function nextQuiz(stepIndex, answer) {
+    if (stepIndex === 1) quizAnswers.skin = answer;
+    if (stepIndex === 2) quizAnswers.occasion = answer;
+
+    document.getElementById('quiz-q' + stepIndex).classList.add('hidden');
+    document.getElementById('quiz-q' + (stepIndex + 1)).classList.remove('hidden');
+}
+
+function finishQuiz(answer) {
+    quizAnswers.coverage = answer;
+    closeQuiz();
+
+    let recommendedName = "Regular Party";
+    
+    if (quizAnswers.occasion === 'bridal') {
+        if (quizAnswers.coverage === 'full' || quizAnswers.skin === 'oily') recommendedName = "Airbrush Bridal";
+        else recommendedName = "Bridal HD Package";
+    } else if (quizAnswers.occasion === 'prewed') {
+        if (quizAnswers.coverage === 'full') recommendedName = "Reception Airbrush Glam";
+        else if (quizAnswers.coverage === 'light') recommendedName = "Haldi / Mehendi Fresh Look";
+        else recommendedName = "Pre-Wedding Shoot";
+    } else if (quizAnswers.occasion === 'guest') {
+        if (quizAnswers.coverage === 'full') recommendedName = "Premium Family Guest";
+        else recommendedName = "Regular Party";
+    }
+
+    const serviceNode = [...document.querySelectorAll('.service-title')].find(el => el.textContent.includes(recommendedName));
+    
+    if (serviceNode) {
+        const optionDiv = serviceNode.closest('.service-option');
+        if (optionDiv && !optionDiv.classList.contains('selected')) {
+            optionDiv.click(); 
+        }
+        alert("✨ Perfect Match! We highly recommend: " + recommendedName + " ✨\nWe've automatically added this to your package!");
+        document.querySelector('.summary-box').scrollIntoView({behavior: 'smooth', block: 'center'});
+    } else {
+        alert("Thanks for answering! Please scroll through our services to find what you need.");
+    }
+}

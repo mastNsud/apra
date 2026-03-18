@@ -87,6 +87,10 @@ section h2 { font-size: 3rem; text-align: center; color: #ff4d6d; margin-bottom:
 .booking-form input:focus, .booking-form select:focus { outline: none; border-color: var(--accent-primary); }
 .full-width { grid-column: 1 / -1; }
 
+/* Quiz Buttons */
+.quiz-btn { display: block; width: 100%; margin: 10px 0; padding: 12px; border: 2px solid #ff4d6d; background: transparent; color: #ff4d6d; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; }
+.quiz-btn:hover { background: #ff4d6d; color: #fff; transform: translateY(-2px); }
+
 /* Masonry Gallery */
 .masonry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
 .masonry-item { position: relative; overflow: hidden; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }

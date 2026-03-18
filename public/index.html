@@ -35,7 +35,10 @@
         <h2>Build Your Custom Experience</h2>
         <div class="flow-container">
             <div class="flow-step">
-                <h3>1. Select Services</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 style="margin:0;">1. Select Services</h3>
+                    <button class="btn-primary" style="padding: 5px 15px; font-size:0.9rem;" onclick="openQuiz()"><i class="fas fa-magic"></i> Help Me Choose</button>
+                </div>
                 <div class="services-list" id="services-container">
                     <p>Loading beautifully crafted services...</p>
                 </div>
@@ -121,6 +124,32 @@
         <div class="chat-footer">
             <input type="text" id="chat-input" placeholder="Ask about styling..." onkeypress="handleKeyPress(event)">
             <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-overlay" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2000; display:flex; justify-content:center; align-items:center;">
+        <div class="quiz-box" style="background:#fff; padding:2rem; width:90%; max-width:500px; border-radius:12px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h2 style="color:#ff4d6d; margin-top:0;">Find Your Perfect Package 💖</h2>
+            <div id="quiz-q1" class="quiz-step">
+                <p><strong>1. What is your skin type?</strong></p>
+                <button class="quiz-btn" onclick="nextQuiz(1, 'oily')">Oily / Acne Prone</button>
+                <button class="quiz-btn" onclick="nextQuiz(1, 'dry')">Dry / Flaky</button>
+                <button class="quiz-btn" onclick="nextQuiz(1, 'combo')">Combination / Normal</button>
+            </div>
+            <div id="quiz-q2" class="quiz-step hidden">
+                <p><strong>2. What is your primary occasion?</strong></p>
+                <button class="quiz-btn" onclick="nextQuiz(2, 'bridal')">My Wedding Day</button>
+                <button class="quiz-btn" onclick="nextQuiz(2, 'prewed')">Pre-Wedding / Engagement</button>
+                <button class="quiz-btn" onclick="nextQuiz(2, 'guest')">Attending as a Guest</button>
+            </div>
+            <div id="quiz-q3" class="quiz-step hidden">
+                <p><strong>3. How much coverage do you prefer?</strong></p>
+                <button class="quiz-btn" onclick="finishQuiz('light')">Light & Natural (Dewy)</button>
+                <button class="quiz-btn" onclick="finishQuiz('medium')">Medium (Classic Glam)</button>
+                <button class="quiz-btn" onclick="finishQuiz('full')">Full HD / Airbrush (Flawless)</button>
+            </div>
+            <button onclick="closeQuiz()" style="margin-top:20px; background:none; border:none; color:#888; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
