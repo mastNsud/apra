@@ -138,6 +138,10 @@ async function askAI(chatHistory) {
         }
         
         const rawOutput = await fetchFromHF(promptStr);
+        if (!rawOutput) {
+            return "I'm currently busy assisting other brides. Please call our Pitampura studio directly at +91-9876543210 to book your slot!";
+        }
+        
         // Stripping Model Hallucinations / Echoing
         let cleanText = rawOutput.replace(/<\|.*?\|>/g, '').trim();
         cleanText = cleanText.split('User:')[0].trim(); // Prevent DialoGPT user-echo loop 
