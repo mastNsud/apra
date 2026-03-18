@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const fetch = require('node-fetch');
+// Removed node-fetch to use native Node 18+ fetch
 const { askAI, parseAIResponse } = require('../botEngine');
 const { logChat, upsertLead } = require('../leadService');
 

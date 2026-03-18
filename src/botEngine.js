@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
 
 const knowledgeFile = path.join(__dirname, 'knowledge.txt');
 let knowledgeText = '';
