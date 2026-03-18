@@ -51,4 +51,27 @@ async function logChat(sessionId, role, message) {
   }
 }
 
-module.exports = { upsertLead, logChat };
+async function bookAppointment(data) {
+  const query = `
+    INSERT INTO appointments (lead_name, phone, email, appointment_date, time_slot)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+  `;
+  const values = [
+    data.lead_name || null,
+    data.phone || null,
+    data.email || null,
+    data.appointment_date || null,
+    data.time_slot || null
+  ];
+  
+  try {
+    const res = await pool.query(query, values);
+    return res.rows[0];
+  } catch (err) {
+    console.error("Error booking appointment:", err);
+    return null;
+  }
+}
+
+module.exports = { upsertLead, logChat, bookAppointment };

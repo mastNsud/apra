@@ -31,11 +31,26 @@ async function initDB() {
     );
   `;
 
+  const createAppointmentsTable = `
+    CREATE TABLE IF NOT EXISTS appointments (
+      id SERIAL PRIMARY KEY,
+      lead_name VARCHAR(255),
+      phone VARCHAR(255),
+      email VARCHAR(255),
+      appointment_date DATE,
+      time_slot VARCHAR(100),
+      status VARCHAR(50) DEFAULT 'pending_confirmation',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
   try {
     await pool.query(createLeadsTable);
     console.log("Leads table ready.");
     await pool.query(createChatLogsTable);
     console.log("Chat logs table ready.");
+    await pool.query(createAppointmentsTable);
+    console.log("Appointments table ready.");
   } catch (err) {
     if (err.message.includes('password authentication failed')) {
       console.log('Skipping DB setup because no valid DATABASE_URL is configured yet.');
