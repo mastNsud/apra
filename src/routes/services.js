@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../db');
 
-// GET all services
+// PUBLIC: GET all services
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM services ORDER BY id ASC');
@@ -13,19 +13,29 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET global settings (e.g., max discount)
+// PUBLIC: GET global settings (Frontend needs this for the max discount calculation)
 router.get('/settings', async (req, res) => {
   try {
     const result = await pool.query("SELECT setting_value FROM settings WHERE setting_key = 'global_discount_max'");
     res.json({ global_discount_max: result.rows.length > 0 ? parseInt(result.rows[0].setting_value) : 0 });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch settings' });
+    res.status(500).json({ error: 'Failed' });
   }
 });
 
-// Admin: Update setting
-router.put('/settings', async (req, res) => {
+// Middleware for Admin Routes
+function adminAuth(req, res, next) {
+    const pwd = req.headers['x-admin-key'];
+    const expected = process.env.ADMIN_PASSWORD || 'apra123';
+    if (pwd === expected) {
+        next();
+    } else {
+        res.status(401).json({ error: 'Unauthorized. Incorrect password.' });
+    }
+}
+
+// ADMIN: Update settings
+router.put('/settings', adminAuth, async (req, res) => {
   const { global_discount_max } = req.body;
   try {
     await pool.query(
@@ -34,52 +44,68 @@ router.put('/settings', async (req, res) => {
     );
     res.json({ success: true, global_discount_max });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Failed to update settings' });
   }
 });
 
-// Admin: Add new service
-router.post('/', async (req, res) => {
-  const { name, description, price, discount_percent } = req.body;
+// ADMIN: Add new service
+router.post('/', adminAuth, async (req, res) => {
+  const { name, description, price, discount_percent, image_url } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO services (name, description, price, discount_percent) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, description, price, discount_percent || 0]
+      'INSERT INTO services (name, description, price, discount_percent, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [name, description, price, discount_percent || 0, image_url || '']
     );
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Failed to create service' });
   }
 });
 
-// Admin: Update existing service
-router.put('/:id', async (req, res) => {
+// ADMIN: Update existing service
+router.put('/:id', adminAuth, async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, discount_percent } = req.body;
+  const { name, description, price, discount_percent, image_url } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE services SET name=$1, description=$2, price=$3, discount_percent=$4 WHERE id=$5 RETURNING *',
-      [name, description, price, discount_percent || 0, id]
+      'UPDATE services SET name=$1, description=$2, price=$3, discount_percent=$4, image_url=$5 WHERE id=$6 RETURNING *',
+      [name, description, price, discount_percent || 0, image_url || '', id]
     );
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Failed to update service' });
   }
 });
 
-// Admin: Delete service
-router.delete('/:id', async (req, res) => {
+// ADMIN: Delete service
+router.delete('/:id', adminAuth, async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM services WHERE id=$1', [id]);
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Failed to delete service' });
   }
+});
+
+// ADMIN: GET Leads
+router.get('/data/leads', adminAuth, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM leads ORDER BY created_at DESC');
+        res.json(result.rows);
+    } catch(err) {
+        res.status(500).json({error: 'Failed to fetch leads'});
+    }
+});
+
+// ADMIN: GET Appointments
+router.get('/data/appointments', adminAuth, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM appointments ORDER BY created_at DESC');
+        res.json(result.rows);
+    } catch(err) {
+        res.status(500).json({error: 'Failed to fetch appointments'});
+    }
 });
 
 module.exports = router;

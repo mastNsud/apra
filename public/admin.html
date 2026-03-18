@@ -3,123 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apra Makeup - Admin Portal</title>
+    <title>Apra Makeup - Secure Admin</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #fdfaf6; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        body { font-family: 'Inter', sans-serif; background: #fdfaf6; margin:0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h1, h2, h3 { color: #d63384; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .hidden { display: none !important; }
+        
+        /* Auth Overlay */
+        #auth-overlay { position: fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index: 1000;}
+        .auth-box { background: white; padding: 2rem; border-radius: 10px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px;}
+        .tab-btn { background: #f8e5ee; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; color: #d63384; transition: 0.3s;}
+        .tab-btn.active, .tab-btn:hover { background: #d63384; color: white; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top;}
         th { background: #f8e5ee; }
         button { background: #d63384; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
         button:hover { background: #c22774; }
         .form-group { margin-bottom: 15px; }
         input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .badge { background: #e0f8e9; color: #1a7b3c; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .badge { display:inline-block; background:#e0f8e9; color:#1a7b3c; padding:3px 6px; border-radius:4px; font-size:0.8rem; margin-top:4px;}
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Apra Makeup - Backend Admin</h1>
-        <hr>
-        
-        <!-- Global Settings -->
-        <section>
-            <h2>Discount Settings</h2>
-            <div class="form-group">
-                <label>Max "Try Your Luck" Discount (%)</label>
-                <input type="number" id="globalDiscount" value="0">
-                <button onclick="saveGlobalDiscount()" style="margin-top:10px;">Save Global Setting</button>
-            </div>
-        </section>
-
-        <hr>
-
-        <!-- Services Manager -->
-        <section>
-            <h2>Manage Services</h2>
-            <form id="serviceForm" onsubmit="saveService(event)">
-                <input type="hidden" id="serviceId">
-                <div class="form-group">
-                    <label>Service Name</label>
-                    <input type="text" id="serviceName" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="serviceDesc" rows="2" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Price (₹)</label>
-                    <input type="number" id="servicePrice" required>
-                </div>
-                <div class="form-group">
-                    <label>Base Discount (%)</label>
-                    <input type="number" id="serviceDiscount" value="0" required>
-                </div>
-                <button type="submit" id="saveServiceBtn">Add New Service</button>
-                <button type="button" onclick="resetForm()" style="background:#888;">Clear Form</button>
-            </form>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Discount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="servicesList">
-                    <!-- Dynamic -->
-                </tbody>
-            </table>
-        </section>
+    <!-- Password Lock -->
+    <div id="auth-overlay">
+        <div class="auth-box">
+            <h2 style="color:#d63384; margin-top:0;">Admin Login</h2>
+            <input type="password" id="adminPwd" placeholder="Enter Admin Password" style="margin-bottom:15px; text-align:center;">
+            <button onclick="login()" style="width:100%; padding:10px;">Access Dashboard</button>
+            <p id="login-error" style="color:red;font-size:0.9rem;display:none;margin-bottom:0;">Incorrect password</p>
+        </div>
     </div>
 
+    <!-- Main Dashboard -->
+    <div class="container hidden" id="main-app">
+        <h1>Apra Makeup Base Control</h1>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('services', event)">Manage Services</button>
+            <button class="tab-btn" onclick="switchTab('leads', event)">View Leads Data</button>
+            <button class="tab-btn" onclick="switchTab('bookings', event)">View Bookings</button>
+        </div>
+
+        <!-- SERVICES TAB -->
+        <div id="tab-services" class="tab-content">
+            <div class="grid-2">
+                <section>
+                    <h2>Promotional Settings</h2>
+                    <div class="form-group">
+                        <label>Max Gamified Discount Allowed (%)</label>
+                        <input type="number" id="globalDiscount" value="0">
+                        <button onclick="saveGlobalDiscount()" style="margin-top:10px;">Save Rule</button>
+                    </div>
+                </section>
+                <section>
+                    <h2>Add / Edit Service Offerings</h2>
+                    <form id="serviceForm" onsubmit="saveService(event)">
+                        <input type="hidden" id="serviceId">
+                        <div class="form-group">
+                            <label>Service Name</label>
+                            <input type="text" id="serviceName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="serviceDesc" rows="2" required></textarea>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Price (₹)</label>
+                                <input type="number" id="servicePrice" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Internal Discount (%)</label>
+                                <input type="number" id="serviceDiscount" value="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Thumbnail Image URL (e.g. images/service-1.png)</label>
+                            <input type="text" id="serviceImg" placeholder="Leave blank for no image">
+                        </div>
+                        <button type="submit" id="saveServiceBtn">Save Details</button>
+                        <button type="button" onclick="resetForm()" style="background:#888;">Clear Box</button>
+                    </form>
+                </section>
+            </div>
+            <table>
+                <thead><tr><th>Visual</th><th>Name & Desc</th><th>Pricing</th><th>Actions</th></tr></thead>
+                <tbody id="servicesList"></tbody>
+            </table>
+        </div>
+
+        <!-- LEADS TAB -->
+        <div id="tab-leads" class="tab-content hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>AI Generated Lead Database</h2>
+                <button onclick="fetchLeads()">Gather Latest</button>
+            </div>
+            <table>
+                <thead><tr><th>Creation Date</th><th>Client Name</th><th>Contact Info</th><th>Purpose & Budget</th><th>AI Lead Score</th></tr></thead>
+                <tbody id="leadsList"></tbody>
+            </table>
+        </div>
+
+        <!-- BOOKINGS TAB -->
+        <div id="tab-bookings" class="tab-content hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Confirmed Bookings</h2>
+                <button onclick="fetchBookings()">Gather Latest</button>
+            </div>
+            <table>
+                <thead><tr><th>Date Request Made</th><th>Client Reference</th><th>Requested Date & Time</th><th>Services Booked</th><th>Price & Discount Yield</th><th>Current Status</th></tr></thead>
+                <tbody id="bookingsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
     <script>
+        let adminKey = '';
+
+        function login() {
+            adminKey = document.getElementById('adminPwd').value;
+            // Validate the password using the settings endpoint wrapper
+            fetch('/api/services/settings', { headers: { 'x-admin-key': adminKey } })
+            .then(res => {
+                if(res.ok) {
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    document.getElementById('main-app').classList.remove('hidden');
+                    fetchAdminData();
+                } else {
+                    document.getElementById('login-error').style.display = 'block';
+                }
+            });
+        }
+
+        // Catch Enter key on logic box
+        document.getElementById('adminPwd').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+
+        function switchTab(tab, event) {
+            if(event) {
+                document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            
+            if(tab === 'services') fetchAdminData();
+            if(tab === 'leads') fetchLeads();
+            if(tab === 'bookings') fetchBookings();
+        }
+
+        function getAuthHeaders() {
+            return { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
+        }
+
         async function fetchAdminData() {
             try {
-                // Fetch settings
-                const setRes = await fetch('/api/services/settings');
-                const setJson = await setRes.json();
-                document.getElementById('globalDiscount').value = setJson.global_discount_max || 0;
-
-                // Fetch services
-                const srvRes = await fetch('/api/services');
+                const srvRes = await fetch('/api/services'); // Public API to get list
                 const srvJson = await srvRes.json();
                 renderServices(srvJson);
-            } catch (err) {
-                console.error("Failed to load admin data", err);
-            }
+
+                const setRes = await fetch('/api/services/settings', { headers: getAuthHeaders() });
+                if(setRes.ok) {
+                     const setJson = await setRes.json();
+                     document.getElementById('globalDiscount').value = setJson.global_discount_max || 0;
+                }
+            } catch (err) { console.error(err); }
         }
 
         function renderServices(services) {
             const list = document.getElementById('servicesList');
             list.innerHTML = '';
             services.forEach(s => {
+                let imgHtml = s.image_url ? `<img src="${s.image_url}" width="100" style="border-radius:6px; object-fit:cover;">` : `<div style="width:100px;height:70px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#888;">No Image</div>`;
+                
                 list.innerHTML += `
                     <tr>
-                        <td>${s.id}</td>
+                        <td style="width:110px;">${imgHtml}</td>
                         <td><strong>${s.name}</strong><br><small>${s.description}</small></td>
-                        <td>₹${s.price}</td>
-                        <td>${s.discount_percent}%</td>
+                        <td>₹${s.price} <br> <span class="badge">${s.discount_percent}% int. discount</span></td>
                         <td>
                             <button onclick='editService(${JSON.stringify(s)})'>Edit</button>
-                            <button onclick='deleteService(${s.id})' style="background:#dc3545;">Del</button>
+                            <button onclick='deleteService(${s.id})' style="background:#dc3545;margin-top:5px;">Del</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
+        async function fetchLeads() {
+            const res = await fetch('/api/services/data/leads', { headers: getAuthHeaders() });
+            if(!res.ok) return;
+            const leads = await res.json();
+            const list = document.getElementById('leadsList');
+            list.innerHTML = leads.map(l => `
+                <tr>
+                    <td>${new Date(l.created_at).toLocaleDateString()}</td>
+                    <td><strong>${l.name || 'Unknown'}</strong></td>
+                    <td>${l.phone || 'N/A'}<br>${l.email || 'N/A'}</td>
+                    <td>${l.purpose || 'N/A'} - ${l.budget || 'N/A'}</td>
+                    <td>${l.score || 0}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function fetchBookings() {
+            const res = await fetch('/api/services/data/appointments', { headers: getAuthHeaders() });
+            if(!res.ok) return;
+            const bookings = await res.json();
+            const list = document.getElementById('bookingsList');
+            list.innerHTML = bookings.map(b => `
+                <tr>
+                    <td>${new Date(b.created_at).toLocaleDateString()}</td>
+                    <td><strong>${b.lead_name || 'N/A'}</strong><br>${b.phone || 'N/A'}<br>${b.email || 'N/A'}</td>
+                    <td>${new Date(b.appointment_date).toLocaleDateString()}<br>${b.time_slot}</td>
+                    <td>${b.services_booked || 'N/A'}</td>
+                    <td>₹${b.total_price || 0} (${b.discount_applied || 0}% Off)</td>
+                    <td><span class="badge" style="background:#e3f2fd;color:#0d47a1;">${b.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
         async function saveGlobalDiscount() {
             const val = document.getElementById('globalDiscount').value;
             await fetch('/api/services/settings', {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                method: 'PUT', headers: getAuthHeaders(),
                 body: JSON.stringify({ global_discount_max: val })
             });
-            alert('Settings Saved!');
+            alert('Settings Saved Successfully!');
         }
 
         async function saveService(e) {
@@ -130,21 +248,13 @@
                 description: document.getElementById('serviceDesc').value,
                 price: document.getElementById('servicePrice').value,
                 discount_percent: document.getElementById('serviceDiscount').value,
+                image_url: document.getElementById('serviceImg').value
             };
 
-            if (id) {
-                // Update
-                await fetch('/api/services/' + id, {
-                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } else {
-                // Create
-                await fetch('/api/services', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            }
+            const url = id ? '/api/services/' + id : '/api/services';
+            const method = id ? 'PUT' : 'POST';
+
+            await fetch(url, { method, headers: getAuthHeaders(), body: JSON.stringify(payload) });
             resetForm();
             fetchAdminData();
         }
@@ -155,13 +265,14 @@
             document.getElementById('serviceDesc').value = s.description;
             document.getElementById('servicePrice').value = s.price;
             document.getElementById('serviceDiscount').value = s.discount_percent;
-            document.getElementById('saveServiceBtn').innerText = "Update Service";
+            document.getElementById('serviceImg').value = s.image_url || '';
+            document.getElementById('saveServiceBtn').innerText = "Update Offering";
             window.scrollTo(0,0);
         }
 
         async function deleteService(id) {
-            if(confirm('Are you sure you want to delete this service?')) {
-                await fetch('/api/services/' + id, { method: 'DELETE' });
+            if(confirm('Are you sure you want to permanently delete this service?')) {
+                await fetch('/api/services/' + id, { method: 'DELETE', headers: getAuthHeaders() });
                 fetchAdminData();
             }
         }
@@ -171,8 +282,6 @@
             document.getElementById('serviceId').value = '';
             document.getElementById('saveServiceBtn').innerText = "Add New Service";
         }
-
-        window.onload = fetchAdminData;
     </script>
 </body>
 </html>

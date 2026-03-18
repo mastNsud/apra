@@ -53,7 +53,8 @@ async function initDB() {
       name VARCHAR(255),
       description TEXT,
       price INTEGER,
-      discount_percent INTEGER DEFAULT 0
+      discount_percent INTEGER DEFAULT 0,
+      image_url VARCHAR(500)
     );
   `;
   
@@ -77,6 +78,9 @@ async function initDB() {
     } catch(e) {}
     
     await pool.query(createServicesTable);
+    try {
+      await pool.query(`ALTER TABLE services ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);`);
+    } catch(e) {}
     await pool.query(createSettingsTable);
     
     // Seed Default Global Discount
@@ -89,10 +93,10 @@ async function initDB() {
     const srvRes = await pool.query(`SELECT COUNT(*) FROM services`);
     if (parseInt(srvRes.rows[0].count) === 0) {
       await pool.query(`
-        INSERT INTO services (name, description, price, discount_percent) VALUES 
-        ('Bridal HD Package', 'Includes HD without airbrush, styling, draping, extensions', 14400, 0),
-        ('Regular Party', 'Includes styling, draping, and extensions (No HD)', 3000, 0),
-        ('Airbrush Bridal', 'Flawless silicone-based airbrush base', 20000, 5)
+        INSERT INTO services (name, description, price, discount_percent, image_url) VALUES 
+        ('Bridal HD Package', 'Includes HD without airbrush, styling, draping, extensions', 14400, 0, 'images/service-1.png'),
+        ('Regular Party', 'Includes styling, draping, and extensions (No HD)', 3000, 0, 'images/service-2.png'),
+        ('Airbrush Bridal', 'Flawless silicone-based airbrush base', 20000, 5, 'images/service-3.png')
       `);
     }
     

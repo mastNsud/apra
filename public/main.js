@@ -53,7 +53,9 @@ function renderServices() {
         el.id = 'srv-opt-' + s.id;
         el.onclick = () => toggleService(s.id);
         
+        let imgHtml = s.image_url ? `<img src="${s.image_url}" class="service-img" alt="${s.name}">` : '';
         el.innerHTML = `
+            ${imgHtml}
             <span class="service-title">${s.name}</span>
             <span class="service-price">₹${s.price}</span>
             <span class="service-desc">${s.description}</span>
