@@ -7,10 +7,10 @@ FAQs: Home services? Yes +₹1,000-2,000 travel. Products? MAC, Bobbi Brown, Hud
 `;
 
 const HF_MODELS = [
-    "zai-org/GLM-4.7-Flash",
     "meta-llama/Llama-3.2-1B-Instruct",
-    "microsoft/phi-2",
-    "MultiverseComputingCAI/Hypernova-60B-2602"
+    "Qwen/Qwen2.5-1.5B-Instruct",
+    "microsoft/Phi-3.5-mini-instruct",
+    "zai-org/GLM-4.7-Flash"
 ];
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -40,7 +40,7 @@ async function fetchFromHF(messages, modelIndex = 0, retries = 0) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(body),
-            signal: AbortSignal.timeout(12000) // Slightly longer timeout for Router logic
+            signal: AbortSignal.timeout(15000) // 15s total for the actual model response
         });
 
         if (response.status === 503 || response.status === 429) {
