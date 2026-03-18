@@ -29,7 +29,7 @@ Remember to enforce the strict rule: output interactive options as buttons using
 `;
 
 async function askAI(chatHistory, retryWithFallback = false) {
-  const model = retryWithFallback ? 'openrouter/free' : 'google/gemini-2.0-flash-exp:free';
+  const model = retryWithFallback ? 'openrouter/free' : 'mistralai/mistral-7b-instruct:free';
   
   const messages = [
     { role: 'system', content: SYSTEM_PROMPT },
