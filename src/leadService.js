@@ -13,6 +13,11 @@ function calculateScore(data) {
 
 // Upsert a lead. We check if phone or email exists to avoid pure duplicates
 async function upsertLead(sessionId, data, source) {
+  // Only record if we have a way to contact them
+  if (!data.phone && !data.email) {
+    return null;
+  }
+
   const score = calculateScore(data);
   const query = `
     INSERT INTO leads (phone, email, name, purpose, budget, timeline, score, source)
