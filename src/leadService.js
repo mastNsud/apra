@@ -53,8 +53,8 @@ async function logChat(sessionId, role, message) {
 
 async function bookAppointment(data) {
   const query = `
-    INSERT INTO appointments (lead_name, phone, email, appointment_date, time_slot)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO appointments (lead_name, phone, email, appointment_date, time_slot, services_booked, total_price, discount_applied)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *;
   `;
   const values = [
@@ -62,7 +62,10 @@ async function bookAppointment(data) {
     data.phone || null,
     data.email || null,
     data.appointment_date || null,
-    data.time_slot || null
+    data.time_slot || null,
+    data.services_booked || null,
+    data.total_price || 0,
+    data.discount_applied || 0
   ];
   
   try {

@@ -6,6 +6,7 @@ const { initDB } = require('./src/db');
 const chatRoutes = require('./src/routes/chat');
 const whatsappRoutes = require('./src/routes/whatsapp');
 const appointmentRoutes = require('./src/routes/appointments');
+const serviceRoutes = require('./src/routes/services');
 
 // Initialize Express
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/chat', chatRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/services', serviceRoutes);
 
 // Config Endpoint for frontend dynamically rendering social links
 app.get('/api/config', (req, res) => {

@@ -3,82 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apra Makeup Studio | Award-Winning Bridal & Party Makeup</title>
+    <title>Apra Makeup Studio | Colorful Bridal Makeovers</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <div class="logo">APRA</div>
+        <img src="images/logo.jpg" alt="Apra Logo" class="nav-logo" onerror="this.src='';this.alt='APRA';this.style.border='none';">
         <nav>
-            <a href="#services">Services</a>
+            <a href="#booking-flow">Book Package</a>
             <a href="#gallery">Gallery</a>
             <a href="#media">Media</a>
-            <button class="nav-btn" onclick="openBookingModal()">Book Now</button>
         </nav>
+        <button class="nav-btn" onclick="document.getElementById('booking-flow').scrollIntoView({behavior:'smooth'})">Book Fast</button>
     </header>
 
     <section class="hero">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>The Delhi Bride's<br><em>Ultimate Glamour</em></h1>
-            <p>Astonishing Bridal Makeovers & Premium Styling in NCR</p>
+            <h1>The Delhi Bride's<br><em>Vibrant Glamour</em></h1>
+            <p>Astonishing Colorful Bridal Makeovers & Premium Styling in NCR</p>
             <div class="hero-actions">
-                <button class="btn-primary" onclick="openBookingModal()">Book Your Trial Now</button>
-                <button class="btn-secondary" onclick="scrollToEstimator()">Get Package Estimate</button>
+                <button class="btn-primary" onclick="document.getElementById('booking-flow').scrollIntoView({behavior:'smooth'})">Design My Package</button>
             </div>
         </div>
     </section>
 
-    <!-- Interactive Estimator -->
-    <section id="estimator" class="estimator-section">
-        <h2>Smart Package Estimator</h2>
-        <p>Get an instant quote tailored to your events.</p>
-        <div class="estimator-container">
-            <div class="form-group">
-                <label>Type of Event</label>
-                <select id="est-type">
-                    <option value="bridal">Bridal Makeup</option>
-                    <option value="party">Party / Guest Makeup</option>
-                    <option value="photoshoot">Pre-Wedding Shoot</option>
-                </select>
+    <!-- Dynamic Flow Section -->
+    <section id="booking-flow">
+        <h2>Build Your Custom Experience</h2>
+        <div class="flow-container">
+            <div class="flow-step">
+                <h3>1. Select Services</h3>
+                <div class="services-list" id="services-container">
+                    <p>Loading beautifully crafted services...</p>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Number of Functions</label>
-                <input type="number" id="est-functions" min="1" max="5" value="1">
+
+            <div class="flow-step">
+                <h3>2. Package Summary</h3>
+                <div class="summary-box">
+                    <p>Total Estimated Price</p>
+                    <div class="price-display">₹<span id="total-price">0</span></div>
+                    <div id="discount-banner" class="discount-text hidden">🎉 You got a <span id="discount-percent">0</span>% discount!</div>
+                    <button class="try-luck-btn" id="try-luck-btn" onclick="tryLuck()">Spin to Win a Discount! 🎁</button>
+                </div>
             </div>
-            <button class="btn-primary" onclick="calculateEstimate()">Calculate Estimate</button>
-            <h3 id="est-result" class="hidden">Estimated Starting Cost: <span></span></h3>
+
+            <div class="flow-step">
+                <h3>3. Finalize Appointment</h3>
+                <form class="booking-form" onsubmit="submitFlowBooking(event)">
+                    <input type="text" id="bf-name" placeholder="Your Name" required>
+                    <input type="text" id="bf-phone" placeholder="Your Phone Number" required>
+                    <input type="email" class="full-width" id="bf-email" placeholder="Your Email (Optional)">
+                    <input type="date" id="bf-date" required>
+                    <select id="bf-time" required>
+                        <option value="" disabled selected>Select Time Slot</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="01:00 PM">01:00 PM</option>
+                        <option value="04:00 PM">04:00 PM</option>
+                    </select>
+                    <button type="submit" class="btn-primary full-width" id="btn-submit-booking" disabled>Select Services to Book</button>
+                </form>
+                <div id="booking-success" class="hidden" style="color:#2ecc71; text-align:center; margin-top:1.5rem; font-weight:bold; font-size:1.5rem;">
+                    Sparkle on! ✨ Your appointment request is submitted successfully! We will contact you shortly.
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Services -->
-    <section id="services" class="services">
-        <h2>Bridal Journey & Services</h2>
-        <div class="services-grid">
-            <div class="card">
-                <h3>Bridal Artistry</h3>
-                <p>HD Makeup, Advanced Hairstyling & Draping. Comprehensive trials.</p>
-            </div>
-            <div class="card">
-                <h3>Party Highlights</h3>
-                <p>Flawless skin base & striking eye artistry for guests.</p>
-            </div>
-            <div class="card">
-                <h3>Pre-Bridal Grooming</h3>
-                <p>Skin prep, consultation, and styling guidance before the big day.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery & Testimonies -->
+    <!-- Gallery -->
     <section id="gallery" class="gallery-section">
-        <h2>Stunning Transformations</h2>
+        <h2>Beautiful Brides</h2>
         <div class="masonry-grid">
-            <div class="masonry-item"><img src="images/gallery-1.jpg" alt="Bride 1"><p class="testimony">"Apra made me feel like royalty!" - Priya</p></div>
-            <div class="masonry-item"><img src="images/gallery-2.jpg" alt="Bride 2"><p class="testimony">"Absolutely flawless makeup." - Sarah</p></div>
-            <div class="masonry-item"><img src="images/gallery-3.jpg" alt="Bride 3"><p class="testimony">"The best decision for my wedding day." - Anjali</p></div>
+            <div class="masonry-item"><img src="images/gallery-1.jpg" alt="Gallery 1" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+1'"></div>
+            <div class="masonry-item"><img src="images/gallery-2.jpg" alt="Gallery 2" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+2'"></div>
+            <div class="masonry-item"><img src="images/gallery-3.jpg" alt="Gallery 3" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+3'"></div>
+            <div class="masonry-item"><img src="images/gallery-4.jpg" alt="Gallery 4" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+4'"></div>
+            <div class="masonry-item"><img src="images/gallery-5.jpg" alt="Gallery 5" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+5'"></div>
+            <div class="masonry-item"><img src="images/gallery-6.jpg" alt="Gallery 6" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+6'"></div>
+            <div class="masonry-item"><img src="images/gallery-7.jpg" alt="Gallery 7" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+7'"></div>
+            <div class="masonry-item"><img src="images/gallery-8.jpg" alt="Gallery 8" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Gallery+8'"></div>
         </div>
     </section>
 
@@ -86,65 +92,34 @@
     <section id="media" class="media-section">
         <h2>Watch Us In Action</h2>
         <div class="media-grid">
-            <!-- YouTube Shorts -->
             <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/n1syTK3FkqE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe src="https://www.youtube.com/embed/n1syTK3FkqE" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
             </div>
-            <!-- Instagram Reel Placeholder -->
-            <div class="video-container" style="background:black">
+            <div class="video-container" style="background:#fff0f3;">
                 <iframe src="https://www.instagram.com/p/CR_p1H3J3N_/embed" width="100%" height="100%" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
-                <div class="ig-placeholder">Instagram Reel <br><small>(Replace link with your actual post)</small></div>
             </div>
         </div>
     </section>
 
-    <!-- Footer with Dynamic Social Links -->
+    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="logo">APRA</div>
-            <p>Your ultimate bridal transformation studio.</p>
-            <div class="social-links" id="social-container">
-                <!-- Injected via JS -->
-            </div>
-        </div>
+        <img src="images/logo.jpg" alt="Apra" style="height:60px; border-radius:50%; margin-bottom:1rem;" onerror="this.style.display='none'">
+        <p style="font-weight:600; color:var(--accent-primary)">Your ultimate colorful bridal transformation studio.</p>
+        <div class="social-links" id="social-container"></div>
         <p class="copyright">© 2026 Apra Makeup Studio. All rights reserved.</p>
     </footer>
-
-    <!-- Booking Modal -->
-    <div id="booking-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close" onclick="closeBookingModal()">&times;</span>
-            <h2>Book an Appointment</h2>
-            <form id="booking-form" onsubmit="submitBooking(event)">
-                <input type="text" id="b-name" placeholder="Full Name" required>
-                <input type="text" id="b-phone" placeholder="Phone Number" required>
-                <input type="email" id="b-email" placeholder="Email Address">
-                <input type="date" id="b-date" required>
-                <select id="b-time" required>
-                    <option value="" disabled selected>Select Time Slot</option>
-                    <option value="10:00 AM">10:00 AM</option>
-                    <option value="01:00 PM">01:00 PM</option>
-                    <option value="04:00 PM">04:00 PM</option>
-                </select>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top:1rem;">Confirm Request</button>
-            </form>
-            <div id="booking-success" class="hidden" style="color:#4cd137; text-align:center; margin-top:1rem;">
-                Request submitted! Our team will contact you shortly.
-            </div>
-        </div>
-    </div>
 
     <!-- Floating Chat FAB -->
     <div id="chat-fab" onclick="toggleChat()"><i class="fas fa-comment-dots"></i></div>
     <!-- Chat Window -->
     <div id="chat-window" class="hidden">
         <div class="chat-header">
-            <div><strong>Apra Assistant</strong><span class="status">Online</span></div>
+            <div><strong style="color:white;">Apra Stylist</strong><span class="status">Online</span></div>
             <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
         </div>
         <div class="chat-body" id="chat-body"></div>
         <div class="chat-footer">
-            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <input type="text" id="chat-input" placeholder="Ask about styling..." onkeypress="handleKeyPress(event)">
             <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>

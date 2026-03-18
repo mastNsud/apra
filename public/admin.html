@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apra Makeup - Admin Portal</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #fdfaf6; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1, h2, h3 { color: #d63384; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f8e5ee; }
+        button { background: #d63384; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #c22774; }
+        .form-group { margin-bottom: 15px; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .badge { background: #e0f8e9; color: #1a7b3c; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Apra Makeup - Backend Admin</h1>
+        <hr>
+        
+        <!-- Global Settings -->
+        <section>
+            <h2>Discount Settings</h2>
+            <div class="form-group">
+                <label>Max "Try Your Luck" Discount (%)</label>
+                <input type="number" id="globalDiscount" value="0">
+                <button onclick="saveGlobalDiscount()" style="margin-top:10px;">Save Global Setting</button>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Services Manager -->
+        <section>
+            <h2>Manage Services</h2>
+            <form id="serviceForm" onsubmit="saveService(event)">
+                <input type="hidden" id="serviceId">
+                <div class="form-group">
+                    <label>Service Name</label>
+                    <input type="text" id="serviceName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="serviceDesc" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="servicePrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Base Discount (%)</label>
+                    <input type="number" id="serviceDiscount" value="0" required>
+                </div>
+                <button type="submit" id="saveServiceBtn">Add New Service</button>
+                <button type="button" onclick="resetForm()" style="background:#888;">Clear Form</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesList">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        async function fetchAdminData() {
+            try {
+                // Fetch settings
+                const setRes = await fetch('/api/services/settings');
+                const setJson = await setRes.json();
+                document.getElementById('globalDiscount').value = setJson.global_discount_max || 0;
+
+                // Fetch services
+                const srvRes = await fetch('/api/services');
+                const srvJson = await srvRes.json();
+                renderServices(srvJson);
+            } catch (err) {
+                console.error("Failed to load admin data", err);
+            }
+        }
+
+        function renderServices(services) {
+            const list = document.getElementById('servicesList');
+            list.innerHTML = '';
+            services.forEach(s => {
+                list.innerHTML += `
+                    <tr>
+                        <td>${s.id}</td>
+                        <td><strong>${s.name}</strong><br><small>${s.description}</small></td>
+                        <td>₹${s.price}</td>
+                        <td>${s.discount_percent}%</td>
+                        <td>
+                            <button onclick='editService(${JSON.stringify(s)})'>Edit</button>
+                            <button onclick='deleteService(${s.id})' style="background:#dc3545;">Del</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function saveGlobalDiscount() {
+            const val = document.getElementById('globalDiscount').value;
+            await fetch('/api/services/settings', {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ global_discount_max: val })
+            });
+            alert('Settings Saved!');
+        }
+
+        async function saveService(e) {
+            e.preventDefault();
+            const id = document.getElementById('serviceId').value;
+            const payload = {
+                name: document.getElementById('serviceName').value,
+                description: document.getElementById('serviceDesc').value,
+                price: document.getElementById('servicePrice').value,
+                discount_percent: document.getElementById('serviceDiscount').value,
+            };
+
+            if (id) {
+                // Update
+                await fetch('/api/services/' + id, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // Create
+                await fetch('/api/services', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+            resetForm();
+            fetchAdminData();
+        }
+
+        function editService(s) {
+            document.getElementById('serviceId').value = s.id;
+            document.getElementById('serviceName').value = s.name;
+            document.getElementById('serviceDesc').value = s.description;
+            document.getElementById('servicePrice').value = s.price;
+            document.getElementById('serviceDiscount').value = s.discount_percent;
+            document.getElementById('saveServiceBtn').innerText = "Update Service";
+            window.scrollTo(0,0);
+        }
+
+        async function deleteService(id) {
+            if(confirm('Are you sure you want to delete this service?')) {
+                await fetch('/api/services/' + id, { method: 'DELETE' });
+                fetchAdminData();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('serviceForm').reset();
+            document.getElementById('serviceId').value = '';
+            document.getElementById('saveServiceBtn').innerText = "Add New Service";
+        }
+
+        window.onload = fetchAdminData;
+    </script>
+</body>
+</html>

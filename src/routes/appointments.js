@@ -3,14 +3,14 @@ const router = express.Router();
 const { bookAppointment } = require('../leadService');
 
 router.post('/', async (req, res) => {
-  const { lead_name, phone, email, appointment_date, time_slot } = req.body;
+  const { lead_name, phone, email, appointment_date, time_slot, services_booked, total_price, discount_applied } = req.body;
   
-  if (!lead_name || !phone || !appointment_date || !time_slot) {
-    return res.status(400).json({ error: 'Missing required appointment fields (name, phone, date, time slot).' });
+  if (!lead_name || !phone || !appointment_date) {
+    return res.status(400).json({ error: 'Missing required appointment fields (name, phone, date).' });
   }
 
   try {
-    const appointment = await bookAppointment({ lead_name, phone, email, appointment_date, time_slot });
+    const appointment = await bookAppointment({ lead_name, phone, email, appointment_date, time_slot, services_booked, total_price, discount_applied });
     if (appointment) {
       res.status(201).json({ success: true, appointment });
     } else {

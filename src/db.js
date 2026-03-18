@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Needed for Railway postgres instances
+  ssl: { rejectUnauthorized: false }
 });
 
 async function initDB() {
@@ -39,24 +39,66 @@ async function initDB() {
       email VARCHAR(255),
       appointment_date DATE,
       time_slot VARCHAR(100),
-      status VARCHAR(50) DEFAULT 'pending_confirmation',
+      services_booked TEXT,
+      total_price INTEGER,
+      discount_applied INTEGER,
+      status VARCHAR(50) DEFAULT 'pending',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
+  const createServicesTable = `
+    CREATE TABLE IF NOT EXISTS services (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255),
+      description TEXT,
+      price INTEGER,
+      discount_percent INTEGER DEFAULT 0
+    );
+  `;
+  
+  const createSettingsTable = `
+    CREATE TABLE IF NOT EXISTS settings (
+      setting_key VARCHAR(100) PRIMARY KEY,
+      setting_value VARCHAR(255)
     );
   `;
 
   try {
     await pool.query(createLeadsTable);
-    console.log("Leads table ready.");
     await pool.query(createChatLogsTable);
-    console.log("Chat logs table ready.");
+    
+    // Safely create and potentially alter existing schema if it existed
     await pool.query(createAppointmentsTable);
-    console.log("Appointments table ready.");
-  } catch (err) {
-    if (err.message.includes('password authentication failed')) {
-      console.log('Skipping DB setup because no valid DATABASE_URL is configured yet.');
-    } else {
-      console.error("Database initialization failed:", err);
+    try {
+      await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS services_booked TEXT;`);
+      await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS total_price INTEGER;`);
+      await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS discount_applied INTEGER;`);
+    } catch(e) {}
+    
+    await pool.query(createServicesTable);
+    await pool.query(createSettingsTable);
+    
+    // Seed Default Global Discount
+    const setRes = await pool.query(`SELECT COUNT(*) FROM settings`);
+    if (parseInt(setRes.rows[0].count) === 0) {
+      await pool.query(`INSERT INTO settings (setting_key, setting_value) VALUES ('global_discount_max', '15')`);
     }
+    
+    // Seed Sample Services
+    const srvRes = await pool.query(`SELECT COUNT(*) FROM services`);
+    if (parseInt(srvRes.rows[0].count) === 0) {
+      await pool.query(`
+        INSERT INTO services (name, description, price, discount_percent) VALUES 
+        ('Bridal HD Package', 'Includes HD without airbrush, styling, draping, extensions', 14400, 0),
+        ('Regular Party', 'Includes styling, draping, and extensions (No HD)', 3000, 0),
+        ('Airbrush Bridal', 'Flawless silicone-based airbrush base', 20000, 5)
+      `);
+    }
+    
+    console.log("Database Schema fully updated for Phase 3.");
+  } catch (err) {
+    console.log('Database init warning/skip (might strictly need DATABASE_URL set):', err.message);
   }
 }
 
