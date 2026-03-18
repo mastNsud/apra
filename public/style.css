@@ -48,7 +48,7 @@ nav a:hover { color: var(--accent-gold); }
 /* Hero */
 .hero {
     height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center;
-    background: url('https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?q=80&w=2000&auto=format&fit=crop') center/cover;
+    background: url('images/hero-bg.jpg') center/cover;
 }
 .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
 .hero-content { position: relative; z-index: 10; max-width: 800px; padding: 0 20px; }
