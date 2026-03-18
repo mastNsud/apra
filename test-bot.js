@@ -2,13 +2,11 @@ require('dotenv').config();
 const { askAI } = require('./src/botEngine');
 
 const testQueries = [
-    "What services do you offer?",
+    "What services does APRA offer?",
     "Bridal makeup price?",
-    "Where is your studio located?",
-    "Bridal makeup ka price kya hai? (Hindi mix)",
-    "I want to book an appointment",
+    "Location in Pitampura?",
     "Do you have Moroccan oil treatment?",
-    "What courses do you teach?"
+    "I want to book an appointment"
 ];
 
 async function runTests() {
