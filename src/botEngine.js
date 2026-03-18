@@ -1,10 +1,15 @@
-const KNOWLEDGE_BASE = `
-Studio: APRA Makeup Studio & Academy
-Location: Near Hemraj Jain Hospital, Pushpanjali Enclave, Pitampura, Delhi (Opposite Metro Pillar 345, near Pitampura Metro Station).
-Hours: 10AM-8PM, closed Tuesday.
-Services: Bridal (₹15,000-35,000 with trial session), Hair (Moroccan Oil ₹3,500+, Keratin, coloring), Academy (Courses 3-12 months, ₹45K-1.5L), Skincare (Facials ₹2,000+, clean-up ₹1,200).
-FAQs: Home services? Yes +₹1,000-2,000 travel. Products? MAC, Bobbi Brown, Huda, Kryolan. Parking? Free available.
-`;
+const fs = require('fs');
+const path = require('path');
+
+const KNOWLEDGE_FILE = path.join(__dirname, 'knowledge.txt');
+let KNOWLEDGE_BASE = '';
+
+try {
+    KNOWLEDGE_BASE = fs.readFileSync(KNOWLEDGE_FILE, 'utf8');
+} catch (err) {
+    console.error('Error reading knowledge.txt:', err);
+    KNOWLEDGE_BASE = 'APRA Makeup Studio in Delhi. Focused on Bridal and Party makeup.';
+}
 
 const HF_MODELS = [
     "meta-llama/Llama-3.2-1B-Instruct",
