@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apra Makeup Studio | High-end Bridal & Party Makeup</title>
+    <meta name="description" content="Experience luxury bridal and party makeup with Apra Makeup Studio worldwide.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Apra</div>
+        <nav>
+            <a href="#services">Services</a>
+            <a href="#portfolio">Portfolio</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Unveil Your <br><em>True Elegance</em></h1>
+            <p>Luxury Makeup Artistry for the Modern Bride</p>
+            <a href="#contact" class="btn-primary" onclick="openChat(event)">Book a Trial</a>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <h2>Our Services</h2>
+        <div class="services-grid">
+            <div class="card">
+                <h3>Bridal Package</h3>
+                <p>HD Makeup, Hairstyling, Draping. Starts at $500.</p>
+            </div>
+            <div class="card">
+                <h3>Party Makeup</h3>
+                <p>Flawless Base, Eye Makeup, Hairstyling. Starts at $150.</p>
+            </div>
+            <div class="card">
+                <h3>Trial Session</h3>
+                <p>Available for Brides. $100 (adjustable against booking).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Chat FAB -->
+    <div id="chat-fab" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="hidden">
+        <div class="chat-header">
+            <div>
+                <strong>Apra Assistant</strong>
+                <span class="status">Online</span>
+            </div>
+            <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <!-- Messages go here -->
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+</html>
