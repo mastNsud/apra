@@ -33,10 +33,26 @@ router.post('/message', async (req, res) => {
   session.history.push({ role: 'user', content: message });
   await logChat(sessionId, 'user', message);
   
-  // Super simple static extraction for demo purposes
+  // Enhanced Extraction Logic
   if (message.includes('@')) session.collectedData.email = message;
   const phoneMatch = message.match(/\b\d{10}\b/);
   if (phoneMatch) session.collectedData.phone = phoneMatch[0];
+
+  const lowerMsg = message.toLowerCase();
+  
+  // Extract Purpose
+  if (lowerMsg.includes('bridal')) session.collectedData.purpose = 'Bridal Makeup';
+  else if (lowerMsg.includes('party')) session.collectedData.purpose = 'Party Makeup';
+  else if (lowerMsg.includes('engagement')) session.collectedData.purpose = 'Engagement Makeup';
+  else if (lowerMsg.includes('academy') || lowerMsg.includes('course')) session.collectedData.purpose = 'Academy/Course';
+  
+  // Extract Budget (very simple check for k or 000)
+  const budgetMatch = message.match(/(\d+k|\d+000)/i);
+  if (budgetMatch) session.collectedData.budget = budgetMatch[0];
+
+  // Extract Timeline/Date
+  const dateMatch = message.match(/\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/);
+  if (dateMatch) session.collectedData.timeline = dateMatch[0];
 
   try {
     const aiRawResponse = await askAI(session.history);

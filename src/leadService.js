@@ -77,4 +77,28 @@ async function bookAppointment(data) {
   }
 }
 
-module.exports = { upsertLead, logChat, bookAppointment };
+async function updateAppointment(id, data) {
+  const query = `
+    UPDATE appointments 
+    SET contacted = $1, contacted_at = $2, comments = $3, status = $4
+    WHERE id = $5
+    RETURNING *;
+  `;
+  const values = [
+    data.contacted || 'No',
+    data.contacted === 'Yes' ? new Date() : null, // Record time if Yes
+    data.comments || '',
+    data.status || 'pending',
+    id
+  ];
+
+  try {
+    const res = await pool.query(query, values);
+    return res.rows[0];
+  } catch (err) {
+    console.error("Error updating appointment:", err);
+    return null;
+  }
+}
+
+module.exports = { upsertLead, logChat, bookAppointment, updateAppointment };
