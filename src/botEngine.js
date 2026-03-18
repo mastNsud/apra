@@ -7,10 +7,10 @@ FAQs: Home services? Yes +₹1,000-2,000 travel. Products? MAC, Bobbi Brown, Hud
 `;
 
 const HF_MODELS = [
-    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-    "microsoft/DialoGPT-medium",
-    "google/flan-t5-base",
-    "HuggingFaceH4/zephyr-7b-beta"
+    "meta-llama/Llama-3.2-1B-Instruct",
+    "mistralai/Mistral-7B-Instruct-v0.3",
+    "HuggingFaceH4/zephyr-7b-beta",
+    "microsoft/phi-2"
 ];
 
 // Exponential Backoff Delay Generator
@@ -18,11 +18,13 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 
 async function fetchFromHF(prompt, modelIndex = 0, retries = 0) {
     if (modelIndex >= HF_MODELS.length) {
-        throw new Error("All fallback models exhausted.");
+        console.error("CRITICAL: All fallback models exhausted.");
+        return null; // Don't throw, return null for graceful handling
     }
     
     const token = process.env.HUGGINGFACE_TOKEN;
     const model = HF_MODELS[modelIndex];
+    // Modern Serverless Inference Endpoint
     const url = `https://api-inference.huggingface.co/models/${model}`;
 
     const body = {
@@ -38,23 +40,23 @@ async function fetchFromHF(prompt, modelIndex = 0, retries = 0) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(body),
-            signal: AbortSignal.timeout(9000) // Fallback limit matching success criteria (<8s ideal)
+            signal: AbortSignal.timeout(10000) 
         });
 
-        // Handle Overload / Rate Limits
-        if (response.status === 503 || response.status === 429) {
-            if (retries < 3) {
-                console.log(`[HF] Model ${model} rate-limited/loading (${response.status}). Retrying...`);
-                await delay(2000 * Math.pow(2, retries)); // Exponential Extender: 2s, 4s, 8s
+        // Handle Overload / Rate Limits / Gone
+        if (response.status === 503 || response.status === 429 || response.status === 410) {
+            if (retries < 2 && response.status !== 410) {
+                console.log(`[HF] Model ${model} busy (${response.status}). Retrying...`);
+                await delay(1500 * Math.pow(2, retries));
                 return fetchFromHF(prompt, modelIndex, retries + 1);
             } else {
-                console.log(`[HF] Model ${model} failed after retries. Enacting Fallback Chain...`);
+                console.log(`[HF] Model ${model} unavailable (${response.status}). Enacting Fallback...`);
                 return fetchFromHF(prompt, modelIndex + 1, 0);
             }
         }
 
         if (!response.ok) {
-            console.log(`[HF] Model ${model} returned ${response.status}. Enacting Fallback Chain...`);
+            console.log(`[HF] Model ${model} error ${response.status}. Enacting Fallback...`);
             return fetchFromHF(prompt, modelIndex + 1, 0);
         }
 
