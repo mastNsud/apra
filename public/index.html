@@ -69,8 +69,10 @@
                     </select>
                     <button type="submit" class="btn-primary full-width" id="btn-submit-booking" disabled>Select Services to Book</button>
                 </form>
-                <div id="booking-success" class="hidden" style="color:#2ecc71; text-align:center; margin-top:1.5rem; font-weight:bold; font-size:1.5rem;">
-                    Sparkle on! ✨ Your appointment request is submitted successfully! We will contact you shortly.
+                <div id="booking-success" class="hidden" style="text-align:center; margin-top:1.5rem; padding: 25px; background: #fffcfd; border-radius: 12px; border: 2px dashed #ff4d6d;">
+                    <h3 style="color:#2ecc71; margin-top: 0; font-size: 1.4rem;">✨ Details Saved Successfully! ✨</h3>
+                    <p style="color:#666; margin-bottom: 20px;">To confirm your appointment and secure your slot, please pay the booking advance below.</p>
+                    <form><script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_STmyPzwVgMVm65" async> </script> </form>
                 </div>
             </div>
         </div>
