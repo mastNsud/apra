@@ -43,6 +43,9 @@ async function initDB() {
       total_price INTEGER,
       discount_applied INTEGER,
       status VARCHAR(50) DEFAULT 'pending',
+      contacted VARCHAR(10) DEFAULT 'No',
+      contacted_at TIMESTAMP,
+      comments TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
@@ -75,6 +78,9 @@ async function initDB() {
       await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS services_booked TEXT;`);
       await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS total_price INTEGER;`);
       await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS discount_applied INTEGER;`);
+      await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS contacted VARCHAR(10) DEFAULT 'No';`);
+      await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS contacted_at TIMESTAMP;`);
+      await pool.query(`ALTER TABLE appointments ADD COLUMN IF NOT EXISTS comments TEXT;`);
     } catch(e) {}
     
     await pool.query(createServicesTable);
