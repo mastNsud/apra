@@ -117,7 +117,7 @@
                 <button onclick="fetchBookings()">Gather Latest</button>
             </div>
             <table>
-                <thead><tr><th>Date Request Made</th><th>Client Reference</th><th>Requested Date & Time</th><th>Services Booked</th><th>Price & Discount Yield</th><th>Current Status</th></tr></thead>
+                <thead><tr><th>Date Request Made</th><th>Client Reference</th><th>Requested Date & Time</th><th>Services Booked</th><th>Price & Status</th><th>Contacted?</th><th>Admin Comments</th></tr></thead>
                 <tbody id="bookingsList"></tbody>
             </table>
         </div>
@@ -220,15 +220,38 @@
             const bookings = await res.json();
             const list = document.getElementById('bookingsList');
             list.innerHTML = bookings.map(b => `
-                <tr>
+                <tr id="booking-row-${b.id}">
                     <td>${new Date(b.created_at).toLocaleDateString()}</td>
-                    <td><strong>${b.lead_name || 'N/A'}</strong><br>${b.phone || 'N/A'}<br>${b.email || 'N/A'}</td>
+                    <td><strong>${b.lead_name || 'N/A'}</strong><br>${b.phone || 'N/A'}</td>
                     <td>${new Date(b.appointment_date).toLocaleDateString()}<br>${b.time_slot}</td>
-                    <td>${b.services_booked || 'N/A'}</td>
-                    <td>₹${b.total_price || 0} (${b.discount_applied || 0}% Off)</td>
-                    <td><span class="badge" style="background:#e3f2fd;color:#0d47a1;">${b.status}</span></td>
+                    <td><small>${b.services_booked || 'N/A'}</small></td>
+                    <td>₹${b.total_price || 0}<br><span class="badge" style="background:#e3f2fd;color:#0d47a1;">${b.status}</span></td>
+                    <td>
+                        <select onchange="updateBookingStatus(${b.id}, this.value, 'contacted')">
+                            <option value="No" ${b.contacted === 'No' ? 'selected' : ''}>No</option>
+                            <option value="Yes" ${b.contacted === 'Yes' ? 'selected' : ''}>Yes</option>
+                        </select>
+                        ${b.contacted_at ? `<br><small style="color:#666;font-size:0.75rem;">${new Date(b.contacted_at).toLocaleString()}</small>` : ''}
+                    </td>
+                    <td>
+                        <textarea style="font-size:0.8rem;" onblur="updateBookingStatus(${b.id}, this.value, 'comments')">${b.comments || ''}</textarea>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        async function updateBookingStatus(id, value, field) {
+            const row = document.getElementById('booking-row-' + id);
+            const contacted = field === 'contacted' ? value : row.querySelector('select').value;
+            const comments = field === 'comments' ? value : row.querySelector('textarea').value;
+            
+            await fetch('/api/appointments/' + id, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ contacted, comments })
+            });
+            // Re-fetch to update the contacted timestamp show
+            if(field === 'contacted') fetchBookings();
         }
 
         async function saveGlobalDiscount() {

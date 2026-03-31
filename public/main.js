@@ -225,9 +225,9 @@ function finishQuiz(answer) {
         if (optionDiv && !optionDiv.classList.contains('selected')) {
             optionDiv.click(); 
         }
-        alert("✨ Perfect Match! We highly recommend: " + recommendedName + " ✨\nWe've automatically added this to your package!");
+        // Removed alert as per user request for a cleaner experience
         document.querySelector('.summary-box').scrollIntoView({behavior: 'smooth', block: 'center'});
     } else {
-        alert("Thanks for answering! Please scroll through our services to find what you need.");
+        console.log("Quiz Recommendation not found in DOM: " + recommendedName);
     }
 }
